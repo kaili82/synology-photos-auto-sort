@@ -122,8 +122,8 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
 
         # Verify if the extension is allowed
         if [[ ${ALLOWED_EXT} == *"$EXT"* ]]; then
-            DATETIME=$(exiftool ${FILE} | grep -i "create date" | head -1 | xargs)
-
+            DATETIME=$(exiftool ${FILE} | grep -a -i "create date" | head -1 | xargs)
+			echo "Exif date: ${DATETIME}\r"
             # Verify if we have exif data available
             if [[ -z ${DATETIME} ]]; then
                 let PROGRESS++
@@ -144,7 +144,7 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
             # Move the file to target folder if not exist in target folder
             if [[ ! -f ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME} ]]; then
                 mv -n ${FILE} ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME}
-
+				echo "move/rename ${FILE} to ${NEW_NAME}"
                 # Remove the moved file from the array
                 let FILES_COUNTER--
                 FILES_ARR=("${FILES_ARR[@]/$FILE}")
@@ -192,11 +192,11 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
 
         # Verify if the extension is allowed
         if [[ ${ALLOWED_EXT} == *"$EXT"* ]]; then
-            DATETIME=$(exiftool ${FILE} | grep -i "create date" | head -1 | xargs)
+            DATETIME=$(exiftool ${FILE} | grep -a -i "create date" | head -1 | xargs)
 
             # Verify if we have exif data available
             if [[ -z ${DATETIME} ]]; then
-                NEW_FILENAME=${FILENAME=//:}_exif_data_missing.${EXT,,}
+                NEW_FILENAME=${FILENAME=//:}.${EXT,,}
                 echo "No exif data available for image ${FILE}, moved into ${ERROR_DIRECTORY} and renamed as ${NEW_FILENAME}" >> ${LOG_FILE}
                 mv ${FILE} ${SOURCE}/${ERROR_DIRECTORY}/${NEW_FILENAME}
 
@@ -241,9 +241,10 @@ if [[ ${FILES_COUNTER} != 0 ]]; then
                     # Generate a unique ID
                     #UUID=$(cat /proc/sys/kernel/random/uuid)
                     UUID="U$(date +%s%N)"
+					NEW_NAME=${DATE//:}_${TIME//:}_${UUID}.${EXT,,}
 
-                    NEW_FILENAME=${FILENAME=//:}_${UUID}.${EXT,,}
-
+                    #NEW_FILENAME=${FILENAME=//:}_${UUID}.${EXT,,}
+					echo "New filename: ${NEW_NAME}"
                     mv -n ${FILE} ${TARGET}/${YEAR}/${YEAR}.${MONTH}/${NEW_NAME}
 
                     let PROGRESS++
